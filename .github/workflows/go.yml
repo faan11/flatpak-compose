@@ -1,0 +1,86 @@
+name: Build and Release Flatpak-Compose
+
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.21.4'
+
+      - name: Install dependencies
+        run: |
+          go mod download
+
+      - name: Build flatpak-compose for Linux
+        run: |
+          GOARCH=amd64 GOOS=linux go build -o flatpak-compose-linux-amd64 ./cmd/main.go
+
+      - name: Build flatpak-compose for macOS
+        run: |
+          GOARCH=amd64 GOOS=darwin go build -o flatpak-compose-macos-amd64 ./cmd/main.go
+
+      - name: Build flatpak-compose for Windows
+        run: |
+          GOARCH=amd64 GOOS=windows go build -o flatpak-compose-windows-amd64.exe ./cmd/main.go
+
+      - name: Zip artifacts
+        run: |
+          zip flatpak-compose-linux-amd64.zip flatpak-compose-linux-amd64
+          zip flatpak-compose-macos-amd64.zip flatpak-compose-macos-amd64
+          zip flatpak-compose-windows-amd64.zip flatpak-compose-windows-amd64.exe
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset Linux
+        id: upload-linux
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./flatpak-compose-linux-amd64.zip
+          asset_name: flatpak-compose-linux-amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset macOS
+        id: upload-macos
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./flatpak-compose-macos-amd64.zip
+          asset_name: flatpak-compose-macos-amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset Windows
+        id: upload-windows
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./flatpak-compose-windows-amd64.zip
+          asset_name: flatpak-compose-windows-amd64.zip
+          asset_content_type: application/zip
