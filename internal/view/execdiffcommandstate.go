@@ -20,7 +20,7 @@ func printOutput(reader io.Reader) {
 
 func executeShellCommandsAndGetOutput(commands []string) {
 	for _, cmdStr := range commands {
-		fmt.Printf("Command %s \n", cmdStr)
+		fmt.Printf("+ %s \n", cmdStr)
 		cmd := exec.Command("sh", "-c", cmdStr)
 
 		// Create pipes to capture stdout and stderr
@@ -73,10 +73,11 @@ func askForConfirmation(prompt string) bool {
 func ExecDiffCommands(diff model.DiffState) {
 	list := GenDiffStateCommands(diff)
 	if (len(list) != 0) {
+		fmt.Printf("Commands: \n")
 		printShellCommands(list)
 		confirmed := askForConfirmation("Are you sure you want to continue?")
 		if confirmed {
-			fmt.Println("Confirmed! Continuing... \n")
+			fmt.Printf("Execution: \n")
 			executeShellCommandsAndGetOutput(list)
 			fmt.Println("Completed")
 			// Perform the actions you want after confirmation

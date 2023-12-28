@@ -100,3 +100,5 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/go,windows,macos,linux
 flatpak-compose.yaml
+main
+flatpak-compose

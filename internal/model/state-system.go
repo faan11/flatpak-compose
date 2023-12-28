@@ -7,7 +7,7 @@ import (
 	"github.com/faan11/flatpak-compose/internal/utility"
 )
 
-func GetCurrentState() State {
+func GetSystemState() State {
 	var currentState State
 
 	// Get list of installed applications

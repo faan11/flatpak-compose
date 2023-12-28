@@ -6,27 +6,7 @@ import (
 	"fmt"
 )
 
-type FlatpakRepo struct {
-	Name 		 string 	   `yaml:"name"`
-	URI  		 string            `yaml:"uri"`
-	InstallationType string            `yaml:"type"`
-}
-
-type FlatpakApplication struct {
-	Name             string            `yaml:"name"`
-	Repo             string            `yaml:"repo"`
-	Branch		 string		   `yaml:"branch,omitempty"`
-	All              []string 	   `yaml:"all"` // Default permissions
-	Overrides        []string 	   `yaml:"overrides"` // Override permissions
-	InstallationType string            `yaml:"type"`
-}
-
-type State struct {
-	Repos        []FlatpakRepo       `yaml:"repos"`
-	Applications []FlatpakApplication `yaml:"applications"`
-}
-
-func GetNextState(stateFile string) (State, error) {
+func GetFileState(stateFile string) (State, error) {
 	var config State 
 
 	yamlFile, err := ioutil.ReadFile(stateFile)
