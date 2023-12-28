@@ -66,6 +66,7 @@ You can start from scratch or export the system state and generate the system fl
 flatpak-compose export-state system > flatpak-compose.yaml
 ```
 Now you can change your flatpak-compose.yaml as you deside.
+After changing the file, you can proceed by seeing which command will be applied ( plan ) or directly apply the changes ( using the apply command ).
 
 ### Examples
 ```yaml
@@ -121,6 +122,7 @@ Print the current system state in a YAML file.
 flatpak-compose export-state system
 flatpak-compose export-state system-compose
 ```
+The export-state will add a new field "all" for each application. This field holds all the permissions (default and static permissions).
 
 #### Help
 Show usage information.
