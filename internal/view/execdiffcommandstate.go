@@ -4,6 +4,8 @@ import (
 	"os/exec"
 	"io"
 	"bufio"
+	"os"
+	"strings"
 	"github.com/faan11/flatpak-compose/internal/model"
 )
 
@@ -18,6 +20,7 @@ func printOutput(reader io.Reader) {
 
 func executeShellCommandsAndGetOutput(commands []string) {
 	for _, cmdStr := range commands {
+		fmt.Printf("Command %s \n", cmdStr)
 		cmd := exec.Command("sh", "-c", cmdStr)
 
 		// Create pipes to capture stdout and stderr
@@ -44,13 +47,44 @@ func executeShellCommandsAndGetOutput(commands []string) {
 
 		// Wait for the command to finish
 		if err := cmd.Wait(); err != nil {
-			fmt.Printf("Error executing command: %s\n", err)
+			fmt.Printf("Error executing command: %s", err)
 		}
 	}
 }
 
 
+func askForConfirmation(prompt string) bool {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print(prompt + " (y/n): ")
+	response, _ := reader.ReadString('\n')
+	response = strings.ToLower(strings.TrimSpace(response))
+
+	if response == "y" || response == "yes" {
+		return true
+	} else if response == "n" || response == "no" {
+		return false
+	} else {
+		fmt.Println("Please enter y/yes or n/no.")
+		return askForConfirmation(prompt)
+	}
+}
+
 func ExecDiffCommands(diff model.DiffState) {
 	list := GenDiffStateCommands(diff)
-	executeShellCommandsAndGetOutput(list)
+	if (len(list) != 0) {
+		printShellCommands(list)
+		confirmed := askForConfirmation("Are you sure you want to continue?")
+		if confirmed {
+			fmt.Println("Confirmed! Continuing... \n")
+			executeShellCommandsAndGetOutput(list)
+			fmt.Println("Completed")
+			// Perform the actions you want after confirmation
+		} else {
+			fmt.Println("Cancelled.")
+			// Handle cancellation or exit
+		}
+	} else {
+		fmt.Println("No changes needs to be done")
+	}
 }
