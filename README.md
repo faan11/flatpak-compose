@@ -8,8 +8,6 @@ Flatpak Compose is a tool for managing Flatpak configurations using YAML files. 
 - **Manage Applications**: Install, uninstall, and update Flatpak applications.
 - **Permission Overrides**: Set or replace permissions (overrides) for installed applications.
 
-## Usage
-
 ### Installation
 #### Mac
 
@@ -34,7 +32,7 @@ sudo mv flatpak-compose-macos-amd64 /usr/local/bin/flatpak-compose
 3. Extract the downloaded ZIP file.
 4. You'll find the `flatpak-compose-windows-amd64.exe` binary inside the extracted folder.
 
-### Linux
+#### Linux
 
 ```bash
 # Download the latest release for Linux
@@ -52,12 +50,14 @@ sudo mv flatpak-compose-linux-amd64 /usr/local/bin/flatpak-compose
 
 These commands will download the latest release binary for each platform, extract the contents, make the binary executable, and optionally move it to a directory in your PATH for easier access. Adjust the downloaded file name and paths as needed.
 
+
 ### Build 
 
 1. Clone the repository.
 2. Build the application using `go build`.
 3. Optionally, set the generated binary in your system PATH.
 
+## Usage
 ### Examples
 ```yaml
 # flatpak repositories
