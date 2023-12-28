@@ -97,22 +97,37 @@ applications:
 #### Apply Changes
 Apply changes specified in a YAML file.
 ```bash
-flatpak-compose apply [-f file.yaml]
+flatpak-compose apply [-f file.yaml] [-current-state=system-compose/system]
 ```
-This command will look for flatpak-compose.yaml or flatpak-compose.yml by default.
+*Default file:* flatpak-compose.yaml / flatpak-compose.yml
 
 #### Plan Changes (Print Only)
 Print the commands without applying changes.
 ```bash
-flatpak-compose plan [-f file.yaml]
+flatpak-compose plan [-f file.yaml] [-current-state=system-compose/system]
 ```
-This command will look for flatpak-compose.yaml or flatpak-compose.yml by default.
+*Default file:* flatpak-compose.yaml / flatpak-compose.yml
 
-#### Export the system current state
-Print the system current state in a YAML file.
+#### Export System State
+Print the current system state in a YAML file.
 ```bash
-flatpak-compose export
+flatpak-compose export-state system
+flatpak-compose export-state system-compose
 ```
+
+#### Help
+Show usage information.
+```bash
+flatpak-compose help
+```
+
+## States Explanation
+
+- **Current State**: The currently configured state in the YAML file.
+- **System State**: Includes all applications/repos installed in the system.
+- **Compose State**: Contains applications/repos specified in the YAML file.
+- **System-Compose State**: Applications/repos common between the compose and system states (right join).
+
 
 #### Help
 Show usage information.
