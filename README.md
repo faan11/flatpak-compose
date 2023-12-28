@@ -99,12 +99,14 @@ Apply changes specified in a YAML file.
 ```bash
 flatpak-compose apply [-f file.yaml]
 ```
+This command will look for flatpak-compose.yaml or flatpak-compose.yml by default.
 
 #### Plan Changes (Print Only)
 Print the commands without applying changes.
 ```bash
 flatpak-compose plan [-f file.yaml]
 ```
+This command will look for flatpak-compose.yaml or flatpak-compose.yml by default.
 
 #### Export the system current state
 Print the system current state in a YAML file.
@@ -122,7 +124,6 @@ flatpak-compose help
 
 - `internal/model/`: Contains logic for getting the current and next states, as well as diffing them.
 - `internal/view/`: Handles generating commands and executing them.
-- `flatpak-compose.yaml`: Default YAML file for configuration.
 
 ## How It Works
 
