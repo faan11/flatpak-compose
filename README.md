@@ -1,6 +1,8 @@
 # Flatpak Compose
 
+<img align="right"  src="/images/logo.png" alt="image" width="30%" style="float:left;" height="auto">
 Flatpak Compose is a tool for managing Flatpak configurations using YAML files. It allows you to define and apply changes to Flatpak repositories and applications easily.
+
 
 ## Features
 
