@@ -164,7 +164,6 @@ The logo image is taken by Flaticon.com.
 Contributions are welcome! Feel free to open issues or pull requests for enhancements, bug fixes, or new features.
 
 ## License
-
-This project is licensed under the [MIT] - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the [MIT] - see the [LICENSE](LICENSE) file for details.
 
 
