@@ -144,6 +144,10 @@ flatpak-compose help
 
 The application reads a YAML file describing Flatpak configurations and applies the specified changes to the system.
 
+## Assets
+
+The logo image is taken by Flaticon.com.
+
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or pull requests for enhancements, bug fixes, or new features.
