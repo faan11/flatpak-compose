@@ -10,6 +10,48 @@ Flatpak Compose is a tool for managing Flatpak configurations using YAML files. 
 
 ## Usage
 
+### Installation
+#### Mac
+
+```bash
+# Download the latest release for Mac
+curl -LO https://github.com/faan11/flatpak-compose/releases/latest/download/flatpak-compose-macos-amd64.zip
+
+# Unzip the downloaded file
+unzip flatpak-compose-macos-amd64.zip
+
+# Make the binary executable
+chmod +x flatpak-compose-macos-amd64
+
+# Move the binary to a directory in your PATH (optional)
+sudo mv flatpak-compose-macos-amd64 /usr/local/bin/flatpak-compose
+```
+
+#### Windows
+
+1. Open your web browser and go to the [Releases](https://github.com/faan11/flatpak-compose/releases) page of your repository.
+2. Download the `flatpak-compose-windows-amd64.zip` file from the latest release.
+3. Extract the downloaded ZIP file.
+4. You'll find the `flatpak-compose-windows-amd64.exe` binary inside the extracted folder.
+
+### Linux
+
+```bash
+# Download the latest release for Linux
+curl -LO https://github.com/faan11/flatpak-compose/releases/latest/download/flatpak-compose-linux-amd64.zip
+
+# Unpack the downloaded file
+unzip flatpak-compose-linux-amd64.zip
+
+# Make the binary executable
+chmod +x flatpak-compose-linux-amd64
+
+# Move the binary to a directory in your PATH (optional)
+sudo mv flatpak-compose-linux-amd64 /usr/local/bin/flatpak-compose
+```
+
+These commands will download the latest release binary for each platform, extract the contents, make the binary executable, and optionally move it to a directory in your PATH for easier access. Adjust the downloaded file name and paths as needed.
+
 ### Build 
 
 1. Clone the repository.
