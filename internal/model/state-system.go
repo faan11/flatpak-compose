@@ -63,6 +63,17 @@ func GetSystemState() State {
 		currentState.Applications[i].Overrides = utility.MapPermissionsToFlatpakOverrideFlags(string(permissionsOutput))
 	}
 
+	// Get permissions (overrides) for installed applications
+	for i, app := range currentState.Applications {
+		permissionsCmd := exec.Command("flatpak", "override", app.Name, "--show", "--user")
+		permissionsOutput, err := permissionsCmd.Output()
+		if err != nil {
+			log.Fatalf("Error getting permissions for %s: %s\n", app.Name, err)
+		}
+
+		currentState.Applications[i].OverridesUser = utility.MapPermissionsToFlatpakOverrideFlags(string(permissionsOutput))
+	}
+
 	// Get permissions (all) for installed applications
 	for i, app := range currentState.Applications {
 		permissionsCmd := exec.Command("flatpak", "info", app.Name, "-M")

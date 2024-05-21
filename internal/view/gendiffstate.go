@@ -38,12 +38,19 @@ func generateAppInstallCommands(apps []model.FlatpakApplication) []string {
 		commands = append(commands, cmd)
 		// Adds permissions if exists
 		if len(app.Overrides) != 0 {
-			cmd = fmt.Sprintf("flatpak override --%s %s ", app.InstallationType, app.Name)
+			cmd = fmt.Sprintf("flatpak override --system %s ", app.Name)
 			for _, value := range app.Overrides {
 				cmd += fmt.Sprintf("%s ", value)
 			}
+			commands = append(commands, cmd)
 		}
-		commands = append(commands, cmd)
+		if len(app.OverridesUser) != 0 {
+			cmd = fmt.Sprintf("flatpak override --user %s ", app.Name)
+			for _, value := range app.OverridesUser {
+				cmd += fmt.Sprintf("%s ", value)
+			}
+			commands = append(commands, cmd)
+		}
 	}
 
 	return commands
@@ -66,12 +73,20 @@ func generateAppReplacePermissionsCommands(apps []model.FlatpakApplication) []st
 	var commands []string
 
 	for _, app := range apps {
-		cmd := fmt.Sprintf("flatpak override --%s %s ", app.InstallationType, app.Name)
-		//cmd := fmt.Sprintf("flatpak override %s ", app.Name)
-		for _, value := range app.Overrides {
-			cmd += fmt.Sprintf("%s ", value)
+		if len(app.Overrides) != 0 {
+			cmd := fmt.Sprintf("flatpak override --system %s ", app.Name)
+			for _, value := range app.Overrides {
+				cmd += fmt.Sprintf("%s ", value)
+			}
+			commands = append(commands, cmd)
 		}
-		commands = append(commands, cmd)
+		if len(app.OverridesUser) != 0 {
+			cmd := fmt.Sprintf("flatpak override --user %s ", app.Name)
+			for _, value := range app.OverridesUser {
+				cmd += fmt.Sprintf("%s ", value)
+			}
+			commands = append(commands, cmd)
+		}
 	}
 
 	return commands
