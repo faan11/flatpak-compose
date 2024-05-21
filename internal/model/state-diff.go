@@ -1,4 +1,4 @@
-package model;
+package model
 
 import (
 	"fmt"
@@ -100,8 +100,8 @@ func comparePermissions(currentApps []FlatpakApplication, nextApps []FlatpakAppl
 				// Compare overrides
 				overridesChanged := false
 				app := FlatpakApplication{
-					Name: nextApp.Name,
-					Repo: nextApp.Repo,
+					Name:             nextApp.Name,
+					Repo:             nextApp.Repo,
 					InstallationType: nextApp.InstallationType,
 				}
 				for _, value := range nextApp.Overrides {
@@ -124,7 +124,7 @@ func comparePermissions(currentApps []FlatpakApplication, nextApps []FlatpakAppl
 	return appsToReplace
 }
 
-func GetDiffState(currentState,nextState State) (DiffState) {
+func GetDiffState(currentState, nextState State) DiffState {
 	// Handle differences as needed...
 	// Compare repositories
 	reposToAdd, reposToRemove := compareRepositories(currentState.Repos, nextState.Repos)
@@ -142,5 +142,3 @@ func GetDiffState(currentState,nextState State) (DiffState) {
 	}
 
 }
-
-

@@ -1,15 +1,14 @@
-package view;
+package view
+
 import (
-	"fmt"
-	"os/exec"
-	"io"
 	"bufio"
-	"os"
-	"strings"
+	"fmt"
 	"github.com/faan11/flatpak-compose/internal/model"
+	"io"
+	"os"
+	"os/exec"
+	"strings"
 )
-
-
 
 func printOutput(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
@@ -52,7 +51,6 @@ func executeShellCommandsAndGetOutput(commands []string) {
 	}
 }
 
-
 func askForConfirmation(prompt string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -72,7 +70,7 @@ func askForConfirmation(prompt string) bool {
 
 func ExecDiffCommands(diff model.DiffState) {
 	list := GenDiffStateCommands(diff)
-	if (len(list) != 0) {
+	if len(list) != 0 {
 		fmt.Printf("Commands: \n")
 		printShellCommands(list)
 		confirmed := askForConfirmation("Are you sure you want to continue?")

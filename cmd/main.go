@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"log"
 	"github.com/faan11/flatpak-compose/internal/model"
 	"github.com/faan11/flatpak-compose/internal/view"
+	"log"
+	"os"
 )
 
 func getValidFileName(defaultFileName string) (string, error) {
@@ -53,19 +53,19 @@ func main() {
 			log.Fatalf("Invalid next-state type. Use 'system-compose' or 'system'.")
 			return
 		}
-		
+
 		file, err := getValidFileName(*applyFile)
-		if (err != nil){
+		if err != nil {
 			log.Fatalf("Apply compose file not found: %v \n", err)
 			log.Fatalf("You should specify the input file or create a flatpak-compose.yml or flatpak-compose.yaml in the same directory. \n")
 			return
 		}
 
-		// Get next state 
+		// Get next state
 		var currentState, nextState model.State
 		nextState, err = model.GetFileState(file)
-		if (err != nil){
-			log.Fatalf("%v \n", err);
+		if err != nil {
+			log.Fatalf("%v \n", err)
 			return
 		}
 
@@ -95,17 +95,17 @@ func main() {
 		}
 		// Get valid file
 		file, err := getValidFileName(*planFile)
-		if (err != nil){
+		if err != nil {
 			log.Fatalf("Plan compose file not found: %v \n", err)
 			log.Fatalf("You should specify the input file or create a flatpak-compose.yml or flatpak-compose.yaml in the same directory. \n")
 			return
 		}
 		// Get the respective states based on the flag value
-		var currentState,nextState model.State
-		// Get next state 
+		var currentState, nextState model.State
+		// Get next state
 		nextState, err = model.GetFileState(file)
-		if (err != nil){
-			log.Fatalf("%v \n", err);
+		if err != nil {
+			log.Fatalf("%v \n", err)
 			return
 		}
 
@@ -117,7 +117,7 @@ func main() {
 		}
 
 		diff := model.GetDiffState(currentState, nextState)
-		
+
 		view.PrintDiffCommands(diff)
 
 	case "export-state":
@@ -141,16 +141,16 @@ func main() {
 		case "system-compose":
 			// Get next state file name.
 			file, err := getValidFileName(*exportFile)
-			
-			if (err != nil){
+
+			if err != nil {
 				log.Fatalf("Export compose file not found: %v \n", err)
 				log.Fatalf("You should specify the input file or create a flatpak-compose.yml or flatpak-compose.yaml in the same directory. \n")
 				return
 			}
 			fmt.Println(file)
 			fileState, err := model.GetFileState(file)
-			if (err != nil){
-				log.Fatalf("%v \n", err);
+			if err != nil {
+				log.Fatalf("%v \n", err)
 				return
 			}
 			exportState = model.GetComposeState(fileState, model.GetSystemState())

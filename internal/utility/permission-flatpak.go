@@ -1,4 +1,4 @@
-package utility;
+package utility
 
 import (
 	"fmt"
@@ -7,9 +7,8 @@ import (
 
 // MapPermissionsToFlatpakOverrideFlags maps permissions to Flatpak override flags
 func MapPermissionsToFlatpakOverrideFlags(permissionContext string) []string {
-	return  ParseFlatpakPermissions(permissionContext)
+	return ParseFlatpakPermissions(permissionContext)
 }
-
 
 // ParseFlatpakPermissions parses the given permissions and returns Flatpak override flags
 func ParseFlatpakPermissions(permissionContext string) []string {
@@ -38,7 +37,7 @@ func ParseFlatpakPermissions(permissionContext string) []string {
 			for _, value := range values {
 				flag := ""
 				if value == "" {
-					continue;
+					continue
 				}
 				if strings.HasPrefix(value, "!") {
 					flag = getNegativeContextFlag(key, strings.TrimPrefix(value, "!"))
