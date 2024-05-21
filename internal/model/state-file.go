@@ -19,11 +19,6 @@ func GetFileState(stateFile string) (State, error) {
 		return config, err
 	}
 
-	// Check for at least one repo
-	if len(config.Repos) == 0 {
-		return config, fmt.Errorf("at least one repository must exist")
-	}
-
 	for i := range config.Repos {
 		if config.Repos[i].InstallationType == "" {
 			config.Repos[i].InstallationType = "system" // or any default value you prefer
@@ -60,7 +55,7 @@ func GetFileState(stateFile string) (State, error) {
 			}
 		}
 		if !repoExists {
-			return config, fmt.Errorf("Application '%s' refers to a non-existent repository: %s in %s mode", app.Name, app.Repo, app.InstallationType)
+			fmt.Printf("Warning: application '%s' refers to a non-existent repository: '%s' in '%s' mode and will be ignored during installation process but overrides will still be applied if possible\n", app.Name, app.Repo, app.InstallationType)
 		}
 
 		// Check for valid InstallationType

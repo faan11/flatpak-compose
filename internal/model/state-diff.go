@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"slices"
 )
 
 type DiffState struct {
@@ -57,7 +58,7 @@ func compareRepositories(currentRepos []FlatpakRepo, nextRepos []FlatpakRepo) ([
 }
 
 // Function to compare Flatpak Applications
-func compareApplications(currentApps []FlatpakApplication, nextApps []FlatpakApplication) ([]FlatpakApplication, []FlatpakApplication) {
+func compareApplications(nextRepos []FlatpakRepo, currentApps []FlatpakApplication, nextApps []FlatpakApplication) ([]FlatpakApplication, []FlatpakApplication) {
 	var appsToAdd []FlatpakApplication
 	var appsToRemove []FlatpakApplication
 
@@ -81,6 +82,13 @@ func compareApplications(currentApps []FlatpakApplication, nextApps []FlatpakApp
 	}
 
 	for _, app := range nextApps {
+
+		if !slices.ContainsFunc(nextRepos, func(nextRepo FlatpakRepo) bool {
+			return app.Repo == nextRepo.Name
+		}) {
+			continue
+		}
+
 		key := fmt.Sprintf("%s|%s|%s", app.Repo, app.InstallationType, app.Name)
 		if _, exists := currentAppMap[key]; !exists {
 			appsToAdd = append(appsToAdd, app)
@@ -129,7 +137,7 @@ func GetDiffState(currentState, nextState State) DiffState {
 	// Compare repositories
 	reposToAdd, reposToRemove := compareRepositories(currentState.Repos, nextState.Repos)
 	// Compare applications
-	appsToAdd, appsToRemove := compareApplications(currentState.Applications, nextState.Applications)
+	appsToAdd, appsToRemove := compareApplications(nextState.Repos, currentState.Applications, nextState.Applications)
 	// Compare permissions
 	appsToReplace := comparePermissions(currentState.Applications, nextState.Applications)
 	// Create FlatpakDiff structure
