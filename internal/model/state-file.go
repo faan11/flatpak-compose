@@ -3,13 +3,13 @@ package model
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
+	"os"
 )
 
 func GetFileState(stateFile string) (State, error) {
 	var config State
 
-	yamlFile, err := ioutil.ReadFile(stateFile)
+	yamlFile, err := os.ReadFile(stateFile)
 	if err != nil {
 		return config, err
 	}
