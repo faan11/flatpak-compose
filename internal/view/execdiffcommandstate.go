@@ -68,20 +68,26 @@ func askForConfirmation(prompt string) bool {
 	}
 }
 
-func ExecDiffCommands(diff model.DiffState) {
+func ExecDiffCommands(diff model.DiffState, assumeyes bool) {
 	list := GenDiffStateCommands(diff)
 	if len(list) != 0 {
 		fmt.Printf("Commands: \n")
 		printShellCommands(list)
-		confirmed := askForConfirmation("Are you sure you want to continue?")
-		if confirmed {
+		if !assumeyes {
+			confirmed := askForConfirmation("Are you sure you want to continue?")
+			if confirmed {
+				fmt.Printf("Execution: \n")
+				executeShellCommandsAndGetOutput(list)
+				fmt.Println("Completed")
+				// Perform the actions you want after confirmation
+			} else {
+				fmt.Println("Cancelled.")
+				// Handle cancellation or exit
+			}
+		} else {
 			fmt.Printf("Execution: \n")
 			executeShellCommandsAndGetOutput(list)
 			fmt.Println("Completed")
-			// Perform the actions you want after confirmation
-		} else {
-			fmt.Println("Cancelled.")
-			// Handle cancellation or exit
 		}
 	} else {
 		fmt.Println("No changes needs to be done")
