@@ -9,10 +9,10 @@ import (
 func generateRepoAddCommands(repos []model.FlatpakRepo) []string {
 	var commands []string
 
-	/*for _, repo := range repos {
+	for _, repo := range repos {
 		cmd := fmt.Sprintf("flatpak remote-add --%s --if-not-exists %s %s",  repo.InstallationType, repo.Name, repo.URI)
 		commands = append(commands, cmd)
-	}*/
+	}
 
 	return commands
 }
@@ -21,10 +21,10 @@ func generateRepoAddCommands(repos []model.FlatpakRepo) []string {
 func generateRepoRemoveCommands(repos []model.FlatpakRepo) []string {
 	var commands []string
 
-	/*for _, repo := range repos {
+	for _, repo := range repos {
 		cmd := fmt.Sprintf("flatpak remote-delete --%s %s", repo.InstallationType, repo.Name)
 		commands = append(commands, cmd)
-	}*/
+	}
 
 	return commands
 }
