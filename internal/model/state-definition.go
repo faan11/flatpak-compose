@@ -1,9 +1,9 @@
 package model
 
 type FlatpakRepo struct {
-	Name             string `yaml:"name"`
-	URI              string `yaml:"uri"`
-	InstallationType string `yaml:"type"`
+	Name    string `yaml:"name"`
+	URI     string `yaml:"uri"`
+	Options string `yaml:"options"`
 }
 
 type FlatpakApplication struct {

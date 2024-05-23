@@ -33,7 +33,7 @@ func GetComposeState(fileState, systemState State) State {
 		// Search for matching repo in systemState
 		for _, sysRepo := range systemState.Repos {
 			if fileRepo.Name == sysRepo.Name &&
-				fileRepo.InstallationType == sysRepo.InstallationType {
+				fileRepo.Options == sysRepo.Options {
 				found = true
 				foundRepo = sysRepo
 				break

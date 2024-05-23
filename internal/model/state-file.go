@@ -25,15 +25,15 @@ func GetFileState(stateFile string) (State, error) {
 	}
 
 	for i := range config.Repos {
-		if config.Repos[i].InstallationType == "" {
-			config.Repos[i].InstallationType = "system" // or any default value you prefer
+		if config.Repos[i].Options == "" {
+			config.Repos[i].Options = "system" // or any default value you prefer
 		}
 	}
 
 	repoNames := make(map[string]bool)
 	for _, repo := range config.Repos {
 		// Check for unique repo names
-		key := repo.Name + "|" + repo.InstallationType
+		key := repo.Name + "|" + repo.Options
 		if repoNames[key] {
 			return config, fmt.Errorf("duplicate repository name found: %s", key)
 		}
@@ -54,7 +54,7 @@ func GetFileState(stateFile string) (State, error) {
 		// Check if the repo specified for an application exists in the list of repos
 		repoExists := false
 		for _, repo := range config.Repos {
-			if app.Repo == repo.Name && app.InstallationType == repo.InstallationType {
+			if app.Repo == repo.Name && app.InstallationType == repo.Options {
 				repoExists = true
 				break
 			}

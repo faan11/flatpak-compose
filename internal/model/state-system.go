@@ -45,9 +45,9 @@ func GetSystemState() State {
 		fields := strings.Fields(remote)
 		if len(fields) >= 2 {
 			currentState.Repos = append(currentState.Repos, FlatpakRepo{
-				Name:             fields[0],
-				URI:              fields[1],
-				InstallationType: fields[2],
+				Name:    fields[0],
+				URI:     fields[1],
+				Options: fields[2],
 			})
 		}
 	}

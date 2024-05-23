@@ -3,6 +3,7 @@ package view
 import (
 	"fmt"
 	"github.com/faan11/flatpak-compose/internal/model"
+	"strings"
 )
 
 // Function to generate Flatpak commands to add repositories
@@ -10,7 +11,7 @@ func generateRepoAddCommands(repos []model.FlatpakRepo) []string {
 	var commands []string
 
 	for _, repo := range repos {
-		cmd := fmt.Sprintf("flatpak remote-add --%s --if-not-exists %s %s",  repo.InstallationType, repo.Name, repo.URI)
+		cmd := fmt.Sprintf("flatpak remote-add --%s --if-not-exists %s %s", strings.ReplaceAll(repo.Options, ",", " --"), repo.Name, repo.URI)
 		commands = append(commands, cmd)
 	}
 
@@ -22,7 +23,7 @@ func generateRepoRemoveCommands(repos []model.FlatpakRepo) []string {
 	var commands []string
 
 	for _, repo := range repos {
-		cmd := fmt.Sprintf("flatpak remote-delete --%s %s", repo.InstallationType, repo.Name)
+		cmd := fmt.Sprintf("flatpak remote-delete --%s %s", strings.Split(repo.Options, ",")[0], repo.Name)
 		commands = append(commands, cmd)
 	}
 
