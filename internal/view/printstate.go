@@ -1,9 +1,9 @@
-package view;
+package view
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"github.com/faan11/flatpak-compose/internal/model"
+	"gopkg.in/yaml.v2"
 )
 
 func PrintState(state model.State) {
@@ -15,4 +15,3 @@ func PrintState(state model.State) {
 
 	fmt.Println(string(stateYAML))
 }
-

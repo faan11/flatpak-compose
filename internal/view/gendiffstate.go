@@ -1,4 +1,4 @@
-package view;
+package view
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func generateAppInstallCommands(apps []model.FlatpakApplication) []string {
 		cmd := fmt.Sprintf("flatpak install %s %s --%s --assumeyes", app.Repo, app.Name, app.InstallationType)
 		commands = append(commands, cmd)
 		// Adds permissions if exists
-		if (len(app.Overrides) != 0) {
+		if len(app.Overrides) != 0 {
 			cmd = fmt.Sprintf("flatpak override --%s %s ", app.InstallationType, app.Name)
 			for _, value := range app.Overrides {
 				cmd += fmt.Sprintf("%s ", value)
@@ -82,11 +82,10 @@ func GenDiffStateCommands(diff model.DiffState) []string {
 
 	repoRemoveCommands := generateRepoRemoveCommands(diff.ReposToRemove)
 	commands = append(commands, repoRemoveCommands...)
-	
+
 	// Generate commands for repositories
 	repoAddCommands := generateRepoAddCommands(diff.ReposToAdd)
 	commands = append(commands, repoAddCommands...)
-
 
 	appUninstallCommands := generateAppUninstallCommands(diff.AppsToRemove)
 	commands = append(commands, appUninstallCommands...)

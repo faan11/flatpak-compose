@@ -1,17 +1,17 @@
-package model;
+package model
 
 import (
+	"github.com/faan11/flatpak-compose/internal/utility"
 	"log"
 	"os/exec"
 	"strings"
-	"github.com/faan11/flatpak-compose/internal/utility"
 )
 
 func GetSystemState() State {
 	var currentState State
 
 	// Get list of installed applications
-	installedAppsCmd := exec.Command("flatpak", "list", "--app","--columns=application,branch,origin,installation")
+	installedAppsCmd := exec.Command("flatpak", "list", "--app", "--columns=application,branch,origin,installation")
 	installedAppsOutput, err := installedAppsCmd.Output()
 	if err != nil {
 		log.Fatalf("Error getting installed applications: %s\n", err)
@@ -23,9 +23,9 @@ func GetSystemState() State {
 		fields := strings.Fields(app)
 		if len(fields) >= 2 {
 			currentState.Applications = append(currentState.Applications, FlatpakApplication{
-				Name: fields[0],
-				Branch: fields[1],
-				Repo: fields[2],
+				Name:             fields[0],
+				Branch:           fields[1],
+				Repo:             fields[2],
 				InstallationType: fields[3],
 				// Add other properties as needed
 			})
@@ -33,7 +33,7 @@ func GetSystemState() State {
 	}
 
 	// Get list of remotes
-	remotesCmd := exec.Command("flatpak", "remote-list","--columns=name,url,options")
+	remotesCmd := exec.Command("flatpak", "remote-list", "--columns=name,url,options")
 	remotesOutput, err := remotesCmd.Output()
 	if err != nil {
 		log.Fatalf("Error getting remotes: %s\n", err)
@@ -45,9 +45,9 @@ func GetSystemState() State {
 		fields := strings.Fields(remote)
 		if len(fields) >= 2 {
 			currentState.Repos = append(currentState.Repos, FlatpakRepo{
-				Name: fields[0],
-				URI:  fields[1],
-				InstallationType:  fields[2],
+				Name:             fields[0],
+				URI:              fields[1],
+				InstallationType: fields[2],
 			})
 		}
 	}

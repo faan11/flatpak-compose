@@ -1,4 +1,4 @@
-package view;
+package view
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ func printShellCommands(commands []string) {
 	}
 }
 
-func PrintDiffCommands(diff model.DiffState)  {
+func PrintDiffCommands(diff model.DiffState) {
 	list := GenDiffStateCommands(diff)
 	printShellCommands(list)
 }

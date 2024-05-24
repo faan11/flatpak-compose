@@ -1,15 +1,15 @@
 package model
 
 import (
-	"io/ioutil"
-	"gopkg.in/yaml.v2"
 	"fmt"
+	"gopkg.in/yaml.v2"
+	"os"
 )
 
 func GetFileState(stateFile string) (State, error) {
-	var config State 
+	var config State
 
-	yamlFile, err := ioutil.ReadFile(stateFile)
+	yamlFile, err := os.ReadFile(stateFile)
 	if err != nil {
 		return config, err
 	}
@@ -25,15 +25,15 @@ func GetFileState(stateFile string) (State, error) {
 	}
 
 	for i := range config.Repos {
- 	   if config.Repos[i].InstallationType == "" {
-        	config.Repos[i].InstallationType = "system" // or any default value you prefer
-   	   }
+		if config.Repos[i].InstallationType == "" {
+			config.Repos[i].InstallationType = "system" // or any default value you prefer
+		}
 	}
 
 	repoNames := make(map[string]bool)
 	for _, repo := range config.Repos {
 		// Check for unique repo names
-		key := repo.Name + "|"+ repo.InstallationType
+		key := repo.Name + "|" + repo.InstallationType
 		if repoNames[key] {
 			return config, fmt.Errorf("duplicate repository name found: %s", key)
 		}
@@ -76,4 +76,3 @@ func GetFileState(stateFile string) (State, error) {
 
 	return config, nil
 }
-
