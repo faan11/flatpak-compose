@@ -10,8 +10,9 @@ type FlatpakApplication struct {
 	Name             string   `yaml:"name"`
 	Repo             string   `yaml:"repo"`
 	Branch           string   `yaml:"branch,omitempty"`
-	All              []string `yaml:"all"`       // Default permissions
-	Overrides        []string `yaml:"overrides"` // Override permissions
+	All              []string `yaml:"all"`            // Default permissions
+	Overrides        []string `yaml:"overrides"`      // Override permissions
+	OverridesUser    []string `yaml:"overrides_user"` // Override user permissions
 	InstallationType string   `yaml:"type"`
 }
 

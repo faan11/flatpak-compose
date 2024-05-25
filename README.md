@@ -88,6 +88,7 @@ applications:
   repo: flathub
   branch: stable
   overrides: []
+  overrides_user: []
   type: system
 # firefox app
 - name: org.mozilla.firefox
@@ -98,6 +99,7 @@ applications:
   - --nosocket=x11
   - --socket=fallback-x11
   - --allow=bluetooth
+  overrides_user: []
   type: system 
 
 ```

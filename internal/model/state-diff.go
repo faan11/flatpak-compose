@@ -105,25 +105,38 @@ func comparePermissions(currentApps []FlatpakApplication, nextApps []FlatpakAppl
 	for _, nextApp := range nextApps {
 		for i, currentApp := range currentApps {
 			if nextApp.Name == currentApp.Name && nextApp.Repo == currentApp.Repo && nextApp.InstallationType == currentApp.InstallationType {
+
 				// Compare overrides
-				overridesChanged := false
 				app := FlatpakApplication{
 					Name:             nextApp.Name,
 					Repo:             nextApp.Repo,
 					InstallationType: nextApp.InstallationType,
 				}
+
+				overridesChanged := false
 				for _, value := range nextApp.Overrides {
 					if !StringExistsInArray(value, currentApp.Overrides) {
 						overridesChanged = true
 						app.Overrides = append(app.Overrides, value)
-						break
 					}
 				}
-
 				if overridesChanged {
-					appsToReplace = append(appsToReplace, app)
-					// Replace overrides in the current state
 					currentApps[i].Overrides = nextApp.Overrides
+				}
+
+				overridesUserChanged := false
+				for _, value := range nextApp.OverridesUser {
+					if !StringExistsInArray(value, currentApp.OverridesUser) {
+						overridesUserChanged = true
+						app.OverridesUser = append(app.OverridesUser, value)
+					}
+				}
+				if overridesUserChanged {
+					currentApps[i].OverridesUser = nextApp.OverridesUser
+				}
+
+				if overridesChanged || overridesUserChanged {
+					appsToReplace = append(appsToReplace, app)
 				}
 			}
 		}
