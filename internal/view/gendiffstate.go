@@ -2,29 +2,174 @@ package view
 
 import (
 	"fmt"
+	"io/ioutil"
+	"encoding/base64"
 	"github.com/faan11/flatpak-compose/internal/model"
+	"github.com/faan11/flatpak-compose/internal/state"
 )
 
+
+// ConvertMapToText converts a map to a multiline text string
+func ConvertMapToOptions(m map[string]string) string {
+	var result string
+
+	if title, ok := m["xa.title"]; ok {
+		result += fmt.Sprintf("--title=%s\n", title)
+	}
+
+	if url, ok := m["url"]; ok {
+		result += fmt.Sprintf("--url=%s\n", url)
+	}
+
+	if homepage, ok := m["xa.homepage"]; ok {
+		result += fmt.Sprintf("--homepage=%s\n", homepage)
+	}
+
+	if comment, ok := m["xa.comment"]; ok {
+		result += fmt.Sprintf("--comment=%s\n", comment)
+	}
+
+	if description, ok := m["xa.description"]; ok {
+		result += fmt.Sprintf("--description=%s\n", description)
+	}
+
+	if icon, ok := m["xa.icon"]; ok {
+		result += fmt.Sprintf("--icon=%s\n", icon)
+	}
+
+	if gpgKey, ok := m["GPGKey"]; ok {
+		file, errs := ioutil.TempFile("", "*.gpg")
+		if errs != nil {
+		   fmt.Println(errs)
+		   return result 
+		}
+		// Decode the base64 string
+		decodedBytes, err := base64.StdEncoding.DecodeString(gpgKey)
+		if err != nil {
+			fmt.Println("Error decoding base64 string:", err)
+			return result
+		}
+		// Write the binary data to the file
+		_, err = file.Write(decodedBytes)
+		if err != nil {
+			fmt.Println("Error writing to file:", err)
+			return result
+		}
+		// Close the file
+		errs = file.Close()
+		if errs != nil {
+		   fmt.Println(errs)
+		   return result
+		}
+		result += fmt.Sprintf("--gpg-import=%s\n", file.Name())
+	}
+
+	return result
+}
+
+// ConvertMapToText converts a map to a multiline text string
+func ConvertMapToText(m map[string]string) string {
+	var result string
+
+	result += "[Flatpak Repo]\n"
+
+	if title, ok := m["xa.title"]; ok {
+		result += fmt.Sprintf("Title=%s\n", title)
+	}
+
+	if url, ok := m["url"]; ok {
+		result += fmt.Sprintf("Url=%s\n", url)
+	}
+
+	if homepage, ok := m["xa.homepage"]; ok {
+		result += fmt.Sprintf("Homepage=%s\n", homepage)
+	}
+
+	if comment, ok := m["xa.comment"]; ok {
+		result += fmt.Sprintf("Comment=%s\n", comment)
+	}
+
+	if description, ok := m["xa.description"]; ok {
+		result += fmt.Sprintf("Description=%s\n", description)
+	}
+
+	if icon, ok := m["xa.icon"]; ok {
+		result += fmt.Sprintf("Icon=%s\n", icon)
+	}
+
+	if gpgKey, ok := m["GPGKey"]; ok {
+		result += fmt.Sprintf("GPGKey=%s\n", gpgKey)
+	}
+
+	return result
+}
+
 // Function to generate Flatpak commands to add repositories
-func generateRepoAddCommands(repos []model.FlatpakRepo) []string {
+func generateEnvAddCommands(envs []model.Environment) []string {
 	var commands []string
 
-	/*for _, repo := range repos {
-		cmd := fmt.Sprintf("flatpak remote-add --%s --if-not-exists %s %s",  repo.InstallationType, repo.Name, repo.URI)
-		commands = append(commands, cmd)
-	}*/
+	for _, env := range envs {
+		for name, remote := range env.Remotes {
+			// Here we need to create a temporary remote flatpakrepo file.
+			// Create a temporary file but don't delete it
+			file, errs := ioutil.TempFile("", "*.flatpakrepo")
+			if errs != nil {
+			   fmt.Println(errs)
+			   return []string{} 
+			}
+			text := ConvertMapToText(remote)
+			// Write some text to the file
+			_, errs = file.WriteString(text)
+			if errs != nil {
+			   fmt.Println(errs)
+			   return []string{} 
+			}
+	        	// Close the file
+			errs = file.Close()
+			if errs != nil {
+			   fmt.Println(errs)
+			   return []string{} 
+			}
+		
+
+			cmd := fmt.Sprintf("flatpak remote-add --%s --if-not-exists %s file://%s ",  env.InstallationType, name, file.Name())
+			// Adds no verification if it is needed.
+			if verify, ok := remote["gpg-verify"]; ok && verify == "false" {
+				cmd += "--no-gpg-verify"
+			}
+
+			commands = append(commands, cmd)
+		}
+	}
 
 	return commands
 }
 
 // Function to generate Flatpak commands to remove repositories
-func generateRepoRemoveCommands(repos []model.FlatpakRepo) []string {
+func generateEnvRemoveCommands(envs []model.Environment) []string {
 	var commands []string
 
-	/*for _, repo := range repos {
-		cmd := fmt.Sprintf("flatpak remote-delete --%s %s", repo.InstallationType, repo.Name)
-		commands = append(commands, cmd)
-	}*/
+	for _, env := range envs {
+		for name, _ := range env.Remotes {
+			cmd := fmt.Sprintf("flatpak remote-delete --%s %s", env.InstallationType, name)
+			commands = append(commands, cmd)
+		}
+	}
+
+	return commands
+}
+
+// Function to generate Flatpak commands to update repositories
+func generateEnvUpdateCommands(envs []model.Environment) []string {
+	var commands []string
+
+	for _, env := range envs {
+		for name, remote := range env.Remotes {
+			options := ConvertMapToOptions(remote)
+			cmd := fmt.Sprintf("flatpak remote-modify %s --%s %s ", options, env.InstallationType, name)
+			commands = append(commands, cmd)
+		}
+	}
 
 	return commands
 }
@@ -92,15 +237,19 @@ func generateAppReplacePermissionsCommands(apps []model.FlatpakApplication) []st
 	return commands
 }
 
-func GenDiffStateCommands(diff model.DiffState) []string {
+func GenDiffStateCommands(diff state.DiffState) []string {
 	var commands []string
 
-	repoRemoveCommands := generateRepoRemoveCommands(diff.ReposToRemove)
-	commands = append(commands, repoRemoveCommands...)
+	envRemoveCommands := generateEnvRemoveCommands(diff.EnvToRemove)
+	commands = append(commands, envRemoveCommands...)
 
 	// Generate commands for repositories
-	repoAddCommands := generateRepoAddCommands(diff.ReposToAdd)
-	commands = append(commands, repoAddCommands...)
+	envAddCommands := generateEnvAddCommands(diff.EnvToAdd)
+	commands = append(commands, envAddCommands...)
+
+	// Generate commands for repositories
+	envUpdateCommands := generateEnvUpdateCommands(diff.EnvToUpdate)
+	commands = append(commands, envUpdateCommands...)
 
 	appUninstallCommands := generateAppUninstallCommands(diff.AppsToRemove)
 	commands = append(commands, appUninstallCommands...)
