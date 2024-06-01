@@ -33,18 +33,23 @@ func GetSystemState() model.State {
 		}
 	}
 
-	// Parse remotes output
+	//
+	// Get user environment 
+	//
 	uEnv, err := utility.GetUserEnvironment()
 	if err != nil {
 		log.Fatalf("Error getting user env: %v\n", err)
 	}
 	currentState.Environment = append(currentState.Environment, uEnv)
-	
+	//
+	// Get system environment
+	//
 	sEnv, err := utility.GetSystemEnvironment()
 	if err != nil {
 		log.Fatalf("Error getting system env: %v\n", err)
 	}
 	currentState.Environment = append(currentState.Environment, sEnv)
+
 
 	// Get permissions (overrides) for installed applications
 	for i, app := range currentState.Applications {
