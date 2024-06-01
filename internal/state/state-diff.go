@@ -108,15 +108,15 @@ func compareEnvironments(prev, next []model.Environment) (toBeAdded, toBeRemoved
 		}
 
 		if len(coreDiff.added) > 0 || len(remotesDiff.added) > 0 {
-			toBeAdded = append(toBeRemoved, addedEnv)
+			toBeAdded = append(toBeAdded, addedEnv)
 		}
 
 		if len(coreDiff.removed) > 0 || len(remotesDiff.removed) > 0 {
-			toBeUpdated = append(toBeRemoved, removedEnv)
+			toBeRemoved = append(toBeUpdated, removedEnv)
 		}
 
 		if len(coreDiff.updated) > 0 || len(remotesDiff.updated) > 0 {
-			toBeRemoved = append(toBeRemoved, updatedEnv)
+			toBeUpdated = append(toBeUpdated, updatedEnv)
 		}
 	}
 
@@ -185,10 +185,10 @@ func compareRemotes(prevRemotes, nextRemotes map[string]map[string]string) diffR
 				d.updated[k] = updatedRemote
 			}
 			if len(addedRemote) > 0 {
-				d.added[k] = updatedRemote
+				d.added[k] = addedRemote
 			}
 			if len(updatedRemote) > 0 {
-				d.removed[k] = updatedRemote
+				d.removed[k] = removedRemote
 			}
 		}
 	}
