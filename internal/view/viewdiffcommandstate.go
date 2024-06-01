@@ -2,7 +2,7 @@ package view
 
 import (
 	"fmt"
-	"github.com/faan11/flatpak-compose/internal/model"
+	"github.com/faan11/flatpak-compose/internal/state"
 )
 
 func printShellCommands(commands []string) {
@@ -11,7 +11,7 @@ func printShellCommands(commands []string) {
 	}
 }
 
-func PrintDiffCommands(diff model.DiffState) {
+func PrintDiffCommands(diff state.DiffState) {
 	list := GenDiffStateCommands(diff)
 	printShellCommands(list)
 }
