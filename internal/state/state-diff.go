@@ -2,7 +2,6 @@ package state
 
 import (
 	"fmt"
-	"slices"
 	"github.com/faan11/flatpak-compose/internal/model"
 )
 
@@ -227,11 +226,15 @@ func compareApplications(nextRepos []model.Environment, currentApps []model.Flat
 	}
 
 	for _, app := range nextApps {
-
-		if !slices.ContainsFunc(nextRepos, func(nextRepo model.Environment) bool {
-			return nextRepo.RemoteExists(app.Repo,app.InstallationType)
-			//return app.Repo == nextRepo.Name
-		}) {
+		found:= false;
+		for _, nextEnv := range nextRepos {
+			if nextEnv.RemoteExists(app.InstallationType,app.Repo){
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			//fmt.Println("Skipped  ",app.Name,  app.Repo, app.InstallationType)
 			continue
 		}
 
