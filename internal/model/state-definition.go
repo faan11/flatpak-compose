@@ -1,9 +1,10 @@
 package model
 
-type FlatpakRepo struct {
-	Name             string `yaml:"name"`
-	URI              string `yaml:"uri"`
-	InstallationType string `yaml:"type"`
+// Environment has core + remotes of an installation type
+type Environment struct {
+	Core    map[string]string		`yaml:"core"`
+	Remotes map[string]map[string]string	`yaml:"remotes"`
+	InstallationType string 		`yaml:"type"`
 }
 
 type FlatpakApplication struct {
@@ -17,6 +18,16 @@ type FlatpakApplication struct {
 }
 
 type State struct {
-	Repos        []FlatpakRepo        `yaml:"repos"`
+	Environment  []Environment 	  `yaml:"envs"`
 	Applications []FlatpakApplication `yaml:"applications"`
+}
+
+
+func (e Environment) RemoteExists(installationType string, remoteName string) bool {
+	if (installationType == e.InstallationType){
+		_, exists := e.Remotes[remoteName]
+		return exists
+	} else {
+		return false;
+	}
 }
