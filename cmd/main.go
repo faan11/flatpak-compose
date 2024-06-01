@@ -111,7 +111,7 @@ func main() {
 			return
 		}
 
-		switch *applyNextState {
+		switch *planNextState {
 		case "system-compose":
 			currentState = state.GetSharedState(nextState, state.GetSystemState())
 		case "system":
@@ -119,7 +119,6 @@ func main() {
 		}
 
 		diff := state.GetDiffState(currentState, nextState)
-
 		view.PrintDiffCommands(diff)
 
 	case "export-state":
