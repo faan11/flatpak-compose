@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/faan11/flatpak-compose/internal/model"
+	"github.com/faan11/flatpak-compose/internal/state"
 	"github.com/faan11/flatpak-compose/internal/view"
 	"log"
 	"os"
@@ -64,7 +65,7 @@ func main() {
 
 		// Get next state
 		var currentState, nextState model.State
-		nextState, err = model.GetFileState(file)
+		nextState, err = state.GetFileState(file)
 		if err != nil {
 			log.Fatalf("%v \n", err)
 			return
@@ -72,12 +73,12 @@ func main() {
 
 		switch *applyNextState {
 		case "system-compose":
-			currentState = model.GetComposeState(nextState, model.GetSystemState())
+			currentState = state.GetComposeState(nextState, state.GetSystemState())
 		case "system":
-			currentState = model.GetSystemState()
+			currentState = state.GetSystemState()
 		}
 
-		diff := model.GetDiffState(currentState, nextState)
+		diff := state.GetDiffState(currentState, nextState)
 
 		if applyCmd.Parsed() {
 			if planCmd.Parsed() {
@@ -104,7 +105,7 @@ func main() {
 		// Get the respective states based on the flag value
 		var currentState, nextState model.State
 		// Get next state
-		nextState, err = model.GetFileState(file)
+		nextState, err = state.GetFileState(file)
 		if err != nil {
 			log.Fatalf("%v \n", err)
 			return
@@ -112,12 +113,12 @@ func main() {
 
 		switch *applyNextState {
 		case "system-compose":
-			currentState = model.GetComposeState(nextState, model.GetSystemState())
+			currentState = state.GetComposeState(nextState, state.GetSystemState())
 		case "system":
-			currentState = model.GetSystemState()
+			currentState = state.GetSystemState()
 		}
 
-		diff := model.GetDiffState(currentState, nextState)
+		diff := state.GetDiffState(currentState, nextState)
 
 		view.PrintDiffCommands(diff)
 
@@ -149,14 +150,14 @@ func main() {
 				return
 			}
 			fmt.Println(file)
-			fileState, err := model.GetFileState(file)
+			fileState, err := state.GetFileState(file)
 			if err != nil {
 				log.Fatalf("%v \n", err)
 				return
 			}
-			exportState = model.GetComposeState(fileState, model.GetSystemState())
+			exportState = state.GetComposeState(fileState, state.GetSystemState())
 		case "system":
-			exportState = model.GetSystemState()
+			exportState = state.GetSystemState()
 		}
 		// Export the state to the file
 		// Replace this with the actual export logic
