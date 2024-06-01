@@ -73,7 +73,7 @@ func main() {
 
 		switch *applyNextState {
 		case "system-compose":
-			currentState = state.GetComposeState(nextState, state.GetSystemState())
+			currentState = state.GetSharedState(nextState, state.GetSystemState())
 		case "system":
 			currentState = state.GetSystemState()
 		}
@@ -113,7 +113,7 @@ func main() {
 
 		switch *applyNextState {
 		case "system-compose":
-			currentState = state.GetComposeState(nextState, state.GetSystemState())
+			currentState = state.GetSharedState(nextState, state.GetSystemState())
 		case "system":
 			currentState = state.GetSystemState()
 		}
@@ -155,7 +155,7 @@ func main() {
 				log.Fatalf("%v \n", err)
 				return
 			}
-			exportState = state.GetComposeState(fileState, state.GetSystemState())
+			exportState = state.GetSharedState(fileState, state.GetSystemState())
 		case "system":
 			exportState = state.GetSystemState()
 		}

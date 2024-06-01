@@ -33,7 +33,7 @@ func compareRemoteEnvironments(env1, env2 model.Environment) *model.Environment 
 	}
 }
 
-func GetComposeState(fileState, systemState model.State) model.State {
+func GetSharedState(fileState, systemState model.State) model.State {
 	var newState model.State
 
 	// Iterate through fileState applications
