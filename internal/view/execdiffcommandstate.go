@@ -3,11 +3,11 @@ package view
 import (
 	"bufio"
 	"fmt"
-	"github.com/faan11/flatpak-compose/internal/model"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
+	"github.com/faan11/flatpak-compose/internal/state"
 )
 
 func printOutput(reader io.Reader) {
@@ -68,7 +68,7 @@ func askForConfirmation(prompt string) bool {
 	}
 }
 
-func ExecDiffCommands(diff model.DiffState, assumeyes bool) {
+func ExecDiffCommands(diff state.DiffState, assumeyes bool) {
 	list := GenDiffStateCommands(diff)
 	if len(list) != 0 {
 		fmt.Printf("Commands: \n")
