@@ -11,7 +11,8 @@ type DiffState struct {
 	EnvToUpdate            []model.Environment
 	AppsToAdd              []model.FlatpakApplication
 	AppsToRemove           []model.FlatpakApplication
-	AppsToReplaceOverrides []model.FlatpakApplication
+	PermToAdd 	       []model.FlatpakApplication
+	PermToRemove 	       []model.FlatpakApplication
 }
 
 type diffCore struct {
@@ -206,40 +207,51 @@ func compareApplications(nextRepos []model.Environment, currentApps []model.Flat
 	var appsToAdd []model.FlatpakApplication
 	var appsToRemove []model.FlatpakApplication
 
+	// currentApps is the system
+	// We assume that currentApps is valid.
+	// nextApps is the desidered state.
+
 	nextAppMap := make(map[string]bool)
+	// Calculate key indexing for the desired state
 	for _, app := range nextApps {
 		key := fmt.Sprintf("%s|%s|%s", app.Repo, app.InstallationType, app.Name)
 		nextAppMap[key] = true
 	}
-
+	// Check if currentApps is not present in the desidered state.
 	for _, app := range currentApps {
 		key := fmt.Sprintf("%s|%s|%s", app.Repo, app.InstallationType, app.Name)
 		if _, exists := nextAppMap[key]; !exists {
+			// if it NOT present, remove it.
 			appsToRemove = append(appsToRemove, app)
 		}
 	}
-
+	// Calculate index of current app.
 	currentAppMap := make(map[string]bool)
 	for _, app := range currentApps {
 		key := fmt.Sprintf("%s|%s|%s", app.Repo, app.InstallationType, app.Name)
 		currentAppMap[key] = true
 	}
 
+	// For each application in the desidered state.
 	for _, app := range nextApps {
 		found:= false;
+		// repo Validation?
 		for _, nextEnv := range nextRepos {
 			if nextEnv.RemoteExists(app.InstallationType,app.Repo){
 				found = true;
 				break;
 			}
 		}
-		if (!found) {
-			//fmt.Println("Skipped  ",app.Name,  app.Repo, app.InstallationType)
-			continue
-		}
 
+		if (!found) {
+			fmt.Println("Invalid Remote validation: ",app.Name,  app.Repo, app.InstallationType)
+			break;
+		}
+		// Calculate index key
 		key := fmt.Sprintf("%s|%s|%s", app.Repo, app.InstallationType, app.Name)
+		// check if the apps exists in the current state.
 		if _, exists := currentAppMap[key]; !exists {
+			// If it not, add it.
 			appsToAdd = append(appsToAdd, app)
 		}
 	}
@@ -248,50 +260,83 @@ func compareApplications(nextRepos []model.Environment, currentApps []model.Flat
 }
 
 // Function to compare Flatpak Application Permissions (Overrides)
-func comparePermissions(currentApps []model.FlatpakApplication, nextApps []model.FlatpakApplication) []model.FlatpakApplication {
-	var appsToReplace []model.FlatpakApplication
-
+func comparePermissions(currentApps []model.FlatpakApplication, nextApps []model.FlatpakApplication) ([]model.FlatpakApplication,[]model.FlatpakApplication)  {
+	var appsPermissionRemove,appsPermissionAdd []model.FlatpakApplication
+	// Iterate the desidered state (nextApps)
 	for _, nextApp := range nextApps {
-		for i, currentApp := range currentApps {
+		// Iterate the current state to find the related couple (nextApp,currentApp)
+		for _, currentApp := range currentApps {
 			if nextApp.Name == currentApp.Name && nextApp.Repo == currentApp.Repo && nextApp.InstallationType == currentApp.InstallationType {
+				// Found it.
 
 				// Compare overrides
-				app := model.FlatpakApplication{
+				appAdd := model.FlatpakApplication{
 					Name:             nextApp.Name,
 					Repo:             nextApp.Repo,
 					InstallationType: nextApp.InstallationType,
 				}
 
-				overridesChanged := false
+				appRemove := model.FlatpakApplication{
+					Name:             nextApp.Name,
+					Repo:             nextApp.Repo,
+					InstallationType: nextApp.InstallationType,
+				}
+
+				//overridesChanged := false
+				// Iterate the desidered state.
 				for _, value := range nextApp.Overrides {
+					// For each key in the desired state, is it available on the previous state?
 					if !StringExistsInArray(value, currentApp.Overrides) {
-						overridesChanged = true
-						app.Overrides = append(app.Overrides, value)
+						// NO. need to add it.
+						//overridesChanged = true
+						appRemove.Overrides = append(appRemove.Overrides, value)
 					}
 				}
-				if overridesChanged {
-					currentApps[i].Overrides = nextApp.Overrides
+				// Iterate the curent state and see if fields are missing in the desidered state.
+				// If yes, please delete it.
+				for _, value := range currentApp.Overrides {
+					// For each key in the desired state, is it available on the previous state?
+					if !StringExistsInArray(value, nextApp.Overrides) {
+						// NO. need to add it.
+						//overridesChanged = true
+						appAdd.Overrides = append(appAdd.Overrides, value)
+					}
 				}
 
-				overridesUserChanged := false
+
 				for _, value := range nextApp.OverridesUser {
+					// For each key in the desired state, is it available on the previous state?
 					if !StringExistsInArray(value, currentApp.OverridesUser) {
-						overridesUserChanged = true
-						app.OverridesUser = append(app.OverridesUser, value)
+						// NO. need to add it.
+						//overridesChanged = true
+						appRemove.OverridesUser = append(appRemove.OverridesUser, value)
 					}
 				}
-				if overridesUserChanged {
-					currentApps[i].OverridesUser = nextApp.OverridesUser
+
+				//overridesUserChanged := false
+				for _, value := range nextApp.OverridesUser {
+					// For each key in the desired state, is it available on the previous state?
+					if !StringExistsInArray(value, currentApp.OverridesUser) {
+						//overridesUserChanged = true
+						appAdd.OverridesUser = append(appAdd.OverridesUser, value)
+					}
 				}
 
-				if overridesChanged || overridesUserChanged {
-					appsToReplace = append(appsToReplace, app)
+				if (appAdd.OverridesUser != nil) {
+					appsPermissionAdd = append(appsPermissionAdd, appAdd)
 				}
+
+				if (appRemove.Overrides != nil) {
+					appsPermissionRemove = append(appsPermissionRemove, appRemove)
+				}
+
+				// Let's go out... we found the related app.
+				break;
 			}
 		}
 	}
 
-	return appsToReplace
+	return appsPermissionAdd,appsPermissionRemove
 }
 
 func GetDiffState(currentState, nextState model.State) DiffState {
@@ -301,7 +346,7 @@ func GetDiffState(currentState, nextState model.State) DiffState {
 	// Compare applications
 	appsToAdd, appsToRemove := compareApplications(nextState.Environment, currentState.Applications, nextState.Applications)
 	// Compare permissions
-	appsToReplace := comparePermissions(currentState.Applications, nextState.Applications)
+	permToAdd, permToRemove := comparePermissions(currentState.Applications, nextState.Applications)
 	// Create FlatpakDiff structure
 	return DiffState{
 		EnvToAdd:               envToAdd,
@@ -309,7 +354,8 @@ func GetDiffState(currentState, nextState model.State) DiffState {
 		EnvToUpdate:            envToUpdate,
 		AppsToAdd:              appsToAdd,
 		AppsToRemove:           appsToRemove,
-		AppsToReplaceOverrides: appsToReplace,
+		PermToAdd: 		permToAdd,
+		PermToRemove: 		permToRemove,
 	}
 
 }

@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"github.com/faan11/flatpak-compose/internal/model"
 	"github.com/faan11/flatpak-compose/internal/state"
+	"github.com/faan11/flatpak-compose/internal/utility"
 )
 
 
@@ -214,10 +215,10 @@ func generateAppUninstallCommands(apps []model.FlatpakApplication) []string {
 }
 
 // Function to generate Flatpak commands to replace permissions (overrides)
-func generateAppReplacePermissionsCommands(apps []model.FlatpakApplication) []string {
+func generateAppPermissionsCommands(added, removed []model.FlatpakApplication) []string {
 	var commands []string
 
-	for _, app := range apps {
+	for _, app := range added {
 		if len(app.Overrides) != 0 {
 			cmd := fmt.Sprintf("flatpak override --system %s ", app.Name)
 			for _, value := range app.Overrides {
@@ -229,6 +230,23 @@ func generateAppReplacePermissionsCommands(apps []model.FlatpakApplication) []st
 			cmd := fmt.Sprintf("flatpak override --user %s ", app.Name)
 			for _, value := range app.OverridesUser {
 				cmd += fmt.Sprintf("%s ", value)
+			}
+			commands = append(commands, cmd)
+		}
+	}
+	
+	for _, app := range removed {
+		if len(app.Overrides) != 0 {
+			cmd := fmt.Sprintf("flatpak override --system %s ", app.Name)
+			for _, value := range app.Overrides {
+				cmd += fmt.Sprintf("%s ", value)
+			}
+			commands = append(commands, cmd)
+		}
+		if len(app.OverridesUser) != 0 {
+			cmd := fmt.Sprintf("flatpak override --user %s ", app.Name)
+			for _, value := range app.OverridesUser {
+				cmd += fmt.Sprintf("%s ", utility.NegateFlag(value))
 			}
 			commands = append(commands, cmd)
 		}
@@ -259,8 +277,8 @@ func GenDiffStateCommands(diff state.DiffState) []string {
 	commands = append(commands, appInstallCommands...)
 
 	// Generate commands for replacing permissions
-	appReplacePermissionsCommands := generateAppReplacePermissionsCommands(diff.AppsToReplaceOverrides)
-	commands = append(commands, appReplacePermissionsCommands...)
+	permAddRemoveCommands := generateAppPermissionsCommands(diff.PermToAdd,diff.PermToRemove)
+	commands = append(commands, permAddRemoveCommands...)
 
 	return commands
 }

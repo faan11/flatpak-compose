@@ -106,6 +106,49 @@ func getContextPolicyFlag(value string) string {
 	case "talk":
 		return "talk"
 	default:
-		return fmt.Sprintf("no-talk-%s", value)
+		return "no-talk"
 	}
 }
+
+// Helper function to negate a flag in the form --flag=value or --negate-flag=value
+func NegateFlag(fullFlag string) string {
+	parts := strings.SplitN(fullFlag, "=", 2)
+	if len(parts) != 2 {
+		return ""
+	}
+	flag := strings.TrimPrefix(parts[0], "--")
+	value := parts[1]
+
+	switch flag {
+		case "share":
+			return fmt.Sprintf("--unshare=%s", value)
+		case "unshare":
+			return fmt.Sprintf("--share=%s", value)
+		case "socket":
+			return fmt.Sprintf("--nosocket=%s", value)
+		case "nosocket":
+			return fmt.Sprintf("--socket=%s", value)
+		case "device":
+			return fmt.Sprintf("--nodevice=%s", value)
+		case "nodevice":
+			return fmt.Sprintf("--device=%s", value)
+		case "allow":
+			return fmt.Sprintf("--disallow=%s", value)
+		case "disallow":
+			return fmt.Sprintf("--allow=%s", value)
+		case "filesystem":
+			return fmt.Sprintf("--nofilesystem=%s", value)
+		case "nofilesystem":
+			return fmt.Sprintf("--filesystem=%s", value)
+		case "persist":
+			// Assuming there's no specific negative form for persist
+			return ""
+		case "talk-name":
+			return fmt.Sprintf("--no-talk-name=%s", value)
+		case "no-talk-name":
+			return fmt.Sprintf("--talk-name=%s", value)
+		default:
+			return ""
+	}
+}
+
