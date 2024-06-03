@@ -63,7 +63,7 @@ These commands will download the latest release binary for each platform, extrac
 
 ## Usage
 
-### How to start
+### Getting started
 You can start from scratch or export the system state and generate the system flatpak-compose.yaml
 ```bash
 flatpak-compose export-state system > flatpak-compose.yaml
