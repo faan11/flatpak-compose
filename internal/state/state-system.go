@@ -3,6 +3,8 @@ package state
 import (
 	"log"
 	"os/exec"
+	"bufio"
+	"fmt"
 	"strings"
 	"github.com/faan11/flatpak-compose/internal/utility"
 	"github.com/faan11/flatpak-compose/internal/model"
@@ -68,6 +70,7 @@ func GetSystemState() model.State {
 		permissionsOutput, err := permissionsCmd.Output()
 		if err != nil {
 			log.Fatalf("Error getting permissions for %s: %s\n", app.Name, err)
+
 		}
 
 		currentState.Applications[i].OverridesUser = utility.MapPermissionsToFlatpakOverrideFlags(string(permissionsOutput))
@@ -83,5 +86,67 @@ func GetSystemState() model.State {
 
 		currentState.Applications[i].All = utility.MapPermissionsToFlatpakOverrideFlags(string(permissionsOutput))
 	}
+
+
+	for i, app := range currentState.Applications {
+		permissionsCmd := exec.Command("flatpak", "permission-show", app.Name)
+		stdout, err := permissionsCmd.StdoutPipe()
+		if err != nil {
+		    log.Fatalf("Error creating stdout pipe:", err)
+		}
+		
+		if err := permissionsCmd.Start(); err != nil {
+		    log.Fatalf("Error starting command:", err)
+		}
+
+		scanner := bufio.NewScanner(stdout)
+
+	    	// Skip the first line
+	    	if !scanner.Scan() {
+			if err := scanner.Err(); err != nil {
+			    log.Fatalf("Error scanning permission output:", err)
+			}
+		}
+
+		for scanner.Scan() {
+		    line := scanner.Text()
+		    permission, err := parsePermission(line)
+		    if err != nil {
+			log.Fatalf("Error parsing permission:", err)
+			continue
+		    }
+		    currentState.Applications[i].Permissions = append(currentState.Applications[i].Permissions, permission)
+		}
+
+		if err := scanner.Err(); err != nil {
+		    log.Fatalf("Error scanning permission output:", err)
+		}
+
+		if err := permissionsCmd.Wait(); err != nil {
+		    log.Fatalf("Error waiting for command:", err)
+		}
+    	}
+
 	return currentState
+}
+
+
+func parsePermission(line string) (model.Permission, error) {
+    /*parts := strings.Fields(line)
+    if len(parts) != 5 {
+        return model.Permission{}, fmt.Errorf("line does not have the correct number of fields: %d \"%s\"", len(parts), line)
+    }*/
+    parts := strings.SplitN(line, "\t", 5) // Split on tab, maximum 5 splits
+
+    if len(parts) < 5 {
+        return model.Permission{}, fmt.Errorf("line does not have the correct number of fields: %d", len(parts))
+    }
+    // Combine the additional fields into the last field
+    return model.Permission{
+        Table:       parts[0],
+        Object:      parts[1],
+        //App:         parts[2],
+        Permission: parts[3],
+        Data:        parts[4],
+    }, nil
 }

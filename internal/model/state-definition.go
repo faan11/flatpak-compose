@@ -7,14 +7,22 @@ type Environment struct {
 	InstallationType string 		`yaml:"type"`
 }
 
+type Permission struct {
+	Table		string		`yaml:"table"`		 
+	Object		string		`yaml:"object"`
+	Permission	string		`yaml:"permission"`
+	Data		string		`yaml:"data"`
+}
+
 type FlatpakApplication struct {
-	Name             string   `yaml:"name"`
-	Repo             string   `yaml:"repo"`
-	Branch           string   `yaml:"branch,omitempty"`
-	All              []string `yaml:"all"`            // Default permissions
-	Overrides        []string `yaml:"overrides"`      // Override permissions
-	OverridesUser    []string `yaml:"overrides_user"` // Override user permissions
-	InstallationType string   `yaml:"type"`
+	Name             string   	`yaml:"name"`  
+	Repo             string   	`yaml:"repo"`
+	Branch           string   	`yaml:"branch,omitempty"`
+	All              []string 	`yaml:"all"`            // Default permissions
+	Overrides        []string 	`yaml:"overrides"`      // Override permissions
+	OverridesUser    []string 	`yaml:"overrides_user"` // Override user permissions
+	InstallationType string   	`yaml:"type"`
+	Permissions	 []Permission	`yaml:"permissions"`
 }
 
 type State struct {
