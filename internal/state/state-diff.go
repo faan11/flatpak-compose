@@ -13,6 +13,8 @@ type DiffState struct {
 	AppsToRemove           []model.FlatpakApplication
 	PermToAdd 	       []model.FlatpakApplication
 	PermToRemove 	       []model.FlatpakApplication
+	DynamicPermToAdd       []model.FlatpakApplication
+	DynamicPermToRemove    []model.FlatpakApplication
 }
 
 type diffCore struct {
@@ -37,6 +39,15 @@ func StringExistsInArray(target string, arr []string) bool {
 	return false
 }
 
+// PermissionExistsInArray checks if a permission exists in an array of permission
+func PermissionExistsInArray(target model.Permission, arr []model.Permission) bool {
+	for _, p := range arr {
+		if p.Table == target.Table && p.Object == target.Object && p.Permission == target.Permission && p.Data == target.Data {
+			return true
+		}
+	}
+	return false
+}
 //
 // Environment has core + remotes of an installation type
 /*
@@ -339,6 +350,68 @@ func comparePermissions(currentApps []model.FlatpakApplication, nextApps []model
 	return appsPermissionAdd,appsPermissionRemove
 }
 
+// Function to compare Flatpak Application Dynamic Permissions
+func compareDynamicPermissions(currentApps []model.FlatpakApplication, nextApps []model.FlatpakApplication) ([]model.FlatpakApplication,[]model.FlatpakApplication)  {
+	var appsPermissionRemove,appsPermissionAdd []model.FlatpakApplication
+	// Iterate the desidered state (nextApps)
+	for _, nextApp := range nextApps {
+		// Iterate the current state to find the related couple (nextApp,currentApp)
+		for _, currentApp := range currentApps {
+			if nextApp.Name == currentApp.Name && nextApp.Repo == currentApp.Repo && nextApp.InstallationType == currentApp.InstallationType {
+				// Found it.
+
+				// Compare overrides
+				appAdd := model.FlatpakApplication{
+					Name:             nextApp.Name,
+					Repo:             nextApp.Repo,
+					InstallationType: nextApp.InstallationType,
+				}
+
+				appRemove := model.FlatpakApplication{
+					Name:             nextApp.Name,
+					Repo:             nextApp.Repo,
+					InstallationType: nextApp.InstallationType,
+				}
+
+				//overridesChanged := false
+				// Iterate the desidered state.
+				for _, value := range nextApp.Permissions {
+					// For each key in the desired state, is it available on the previous state?
+					if !PermissionExistsInArray(value, currentApp.Permissions) {
+						// NO. need to add it.
+						//overridesChanged = true
+						appAdd.Permissions = append(appAdd.Permissions, value)
+					}
+				}
+				// Iterate the curent state and see if fields are missing in the desidered state.
+				// If yes, please delete it.
+				for _, value := range currentApp.Permissions {
+					// For each key in the desired state, is it available on the previous state?
+					if !PermissionExistsInArray(value, nextApp.Permissions) {
+						// NO. need to remove it
+						//overridesChanged = true
+						appRemove.Permissions = append(appRemove.Permissions, value)
+					}
+				}
+
+
+				if (appAdd.Permissions != nil) {
+					appsPermissionAdd = append(appsPermissionAdd, appAdd)
+				}
+
+				if (appRemove.Permissions != nil) {
+					appsPermissionRemove = append(appsPermissionRemove, appRemove)
+				}
+
+				// Let's go out... we found the related app.
+				break;
+			}
+		}
+	}
+
+	return appsPermissionAdd,appsPermissionRemove
+}
+
 func GetDiffState(currentState, nextState model.State) DiffState {
 	// Handle differences as needed...
 	// Compare repositories
@@ -347,7 +420,9 @@ func GetDiffState(currentState, nextState model.State) DiffState {
 	appsToAdd, appsToRemove := compareApplications(nextState.Environment, currentState.Applications, nextState.Applications)
 	// Compare permissions
 	permToAdd, permToRemove := comparePermissions(currentState.Applications, nextState.Applications)
-	// Create FlatpakDiff structure
+	// Compare dynamic permissions
+	dynamicPermToAdd, dynamicPermToRemove := compareDynamicPermissions(currentState.Applications, nextState.Applications)
+
 	return DiffState{
 		EnvToAdd:               envToAdd,
 		EnvToRemove:            envToRemove,
@@ -356,6 +431,8 @@ func GetDiffState(currentState, nextState model.State) DiffState {
 		AppsToRemove:           appsToRemove,
 		PermToAdd: 		permToAdd,
 		PermToRemove: 		permToRemove,
+		DynamicPermToAdd: 	dynamicPermToAdd,
+		DynamicPermToRemove: 	dynamicPermToRemove,
 	}
 
 }

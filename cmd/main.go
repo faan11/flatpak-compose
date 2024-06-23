@@ -79,7 +79,6 @@ func main() {
 		}
 
 		diff := state.GetDiffState(currentState, nextState)
-
 		if applyCmd.Parsed() {
 			if planCmd.Parsed() {
 				view.PrintDiffCommands(diff)

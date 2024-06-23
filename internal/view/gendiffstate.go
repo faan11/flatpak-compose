@@ -255,6 +255,30 @@ func generateAppPermissionsCommands(added, removed []model.FlatpakApplication) [
 	return commands
 }
 
+// Function to generate Flatpak commands to replace dynamic permissions
+func generateAppDynamicPermissionsCommands(added, removed []model.FlatpakApplication) []string {
+	var commands []string
+	// Order is important. to apply changes....
+	// Delete =remove
+	// Add = add
+	// Change = remove, add
+	// First remove	
+	for _, app := range removed {
+		for _, p := range app.Permissions {
+			cmd := fmt.Sprintf("flatpak permission-remove \"%s\" \"%s\" \"%s\" ", p.Table, p.Object, app.Name)
+			commands = append(commands, cmd)
+		}
+	}
+	// then add
+	for _, app := range added {
+		for _, p := range app.Permissions {
+			cmd := fmt.Sprintf("flatpak permission-set --data=\"%s\" \"%s\" \"%s\" \"%s\" \"%s\" ", p.Data, p.Table, p.Object, app.Name, p.Permission)
+			commands = append(commands, cmd)
+		}
+	}
+	return commands
+}
+
 func GenDiffStateCommands(diff state.DiffState) []string {
 	var commands []string
 
@@ -280,5 +304,9 @@ func GenDiffStateCommands(diff state.DiffState) []string {
 	permAddRemoveCommands := generateAppPermissionsCommands(diff.PermToAdd,diff.PermToRemove)
 	commands = append(commands, permAddRemoveCommands...)
 
+	// Generate commands for replacing permissions
+	dynamicPermAddRemoveCommands := generateAppDynamicPermissionsCommands(diff.DynamicPermToAdd,diff.DynamicPermToRemove)
+	commands = append(commands, dynamicPermAddRemoveCommands...)
+	
 	return commands
 }
