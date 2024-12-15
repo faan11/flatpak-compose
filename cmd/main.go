@@ -91,7 +91,7 @@ func main() {
 		planCmd.Parse(os.Args[2:])
 		// Check if next-state is valid
 		if *planNextState != "system-compose" && *planNextState != "system" {
-			log.Fatalf("Invalid next-state type. Use 'compose' or 'system'.")
+			log.Fatalf("Invalid next-state type. Use 'system-compose' or 'system'.")
 			return
 		}
 		// Get valid file
@@ -131,7 +131,7 @@ func main() {
 		exportStateType := os.Args[2]
 
 		if exportStateType != "system-compose" && exportStateType != "system" {
-			log.Fatalf("Invalid state-type to export. Use 'compose' or 'system'.")
+			log.Fatalf("Invalid state-type to export. Use 'system-compose' or 'system'.")
 			return
 		}
 
@@ -172,11 +172,11 @@ func printUsage() {
 	fmt.Println("Flatpak-Compose: A utility tool for managing Flatpak applications and repositories")
 	fmt.Println("\nFlatpak-Compose is a command-line utility designed to facilitate managing Flatpak applications and repositories. It provides functionalities to apply, plan, and export states of applications and repositories in Flatpak. With this tool, users can identify changes between the system setup and the compose file, enabling efficient management and deployment of Flatpak applications.")
 	fmt.Println("The tool performs the difference between the current state and the desired state (the one described in the file). The current state can be the system state or the intersection between the system and desired state (system-compose).")
-	fmt.Println("The ussr can choose the current state. The current state is the system-compose state by default in order to avoid unwanted changes.")
+	fmt.Println("The user can choose the current state. The current state is the system-compose state by default in order to avoid unwanted changes.")
 	fmt.Println("\nUsage:")
 	fmt.Println("flatpak-compose apply [-f file.yaml] [-current-state=system/system-compose]     # Apply changes based on the difference between the current state and the desired state (compose state)")
 	fmt.Println("flatpak-compose plan [-f file.yaml] [-current-state=system/system-compose]      # Show changes based on the difference between the current state and the desired state (compose state)")
-	fmt.Println("flatpak-compose export-state [-f file.yaml] [-state-type=system/system-compose]  # Show the system or system-compose state using the YAML format")
+	fmt.Println("flatpak-compose export-state [-f file.yaml] system/system-compose   # Show the system or system-compose state using the YAML format")
 	fmt.Println("\nOptions:")
 	fmt.Println("  apply         : Apply changes based on the difference between the current state and the desired state (compose state)")
 	fmt.Println("  plan          : Show changes based on the difference between the current state and the desired state (compose state)")
@@ -185,7 +185,6 @@ func printUsage() {
 	fmt.Println("\nFlags:")
 	fmt.Println("  -f                : YAML file to load (default: flatpak-compose.yaml)")
 	fmt.Println("  -current-state    : Specify the current state type (system/system-compose)")
-	fmt.Println("  -state-type       : Specify the state type to export (system/system-compose)")
 	fmt.Println("\nExplanation:")
 	fmt.Println("  current state     : Can be the system or system-compose state")
 	fmt.Println("  system state      : Includes all the applications/repos in the system")

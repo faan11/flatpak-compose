@@ -138,6 +138,7 @@ Print the current system state in a YAML file.
 flatpak-compose export-state system
 flatpak-compose export-state system-compose
 ```
+The "export-state system" command will print the system state in the standard output while the "export-state system-compose" will print the applications that are in common with flatpak-compose.yaml.  
 The export-state will add a new field "all" for each application. This field holds all the permissions (default and static permissions).
 
 #### Help
