@@ -9,6 +9,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, darwin, windows] # List of operating systems
+        arch: [amd64, arm64, arm] # List of architectures
+        exclude:
+        # excludes node 8 on macOS
+        - os: darwin
+          arch: arm
 
     steps:
       - name: Checkout code
@@ -23,24 +31,25 @@ jobs:
         run: |
           go mod download
 
-      - name: Build flatpak-compose for Linux
+      - name: Build flatpak-compose
         run: |
-          GOARCH=amd64 GOOS=linux go build -o flatpak-compose-linux-amd64 ./cmd/main.go
-
-      - name: Build flatpak-compose for macOS
-        run: |
-          GOARCH=amd64 GOOS=darwin go build -o flatpak-compose-macos-amd64 ./cmd/main.go
-
-      - name: Build flatpak-compose for Windows
-        run: |
-          GOARCH=amd64 GOOS=windows go build -o flatpak-compose-windows-amd64.exe ./cmd/main.go
+          GOARCH=${{ matrix.arch }} GOOS=${{ matrix.os }} go build -o flatpak-compose-${{ matrix.os }}-${{ matrix.arch }} ./cmd/main.go
 
       - name: Zip artifacts
         run: |
-          zip flatpak-compose-linux-amd64.zip flatpak-compose-linux-amd64
-          zip flatpak-compose-macos-amd64.zip flatpak-compose-macos-amd64
-          zip flatpak-compose-windows-amd64.zip flatpak-compose-windows-amd64.exe
+          zip flatpak-compose-${{ matrix.os }}-${{ matrix.arch }}.zip flatpak-compose-${{ matrix.os }}-${{ matrix.arch }}
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-compose-${{ matrix.os }}-${{ matrix.arch }}
+          path: flatpak-compose-${{ matrix.os }}-${{ matrix.arch }}.zip
+  create_release:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -52,35 +61,28 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Release Asset Linux
-        id: upload-linux
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  upload_assets:
+    needs: create_release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, darwin, windows] # List of operating systems
+        arch: [amd64, arm64, arm] # List of architectures
+        exclude:
+          - os: darwin
+            arch: arm
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./flatpak-compose-linux-amd64.zip
-          asset_name: flatpak-compose-linux-amd64.zip
-          asset_content_type: application/zip
+          name: flatpak-compose-${{ matrix.os }}-${{ matrix.arch }}
 
-      - name: Upload Release Asset macOS
-        id: upload-macos
+      - name: Upload Release Assets
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./flatpak-compose-macos-amd64.zip
-          asset_name: flatpak-compose-macos-amd64.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset Windows
-        id: upload-windows
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./flatpak-compose-windows-amd64.zip
-          asset_name: flatpak-compose-windows-amd64.zip
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./flatpak-compose-${{ matrix.os }}-${{ matrix.arch }}.zip
+          asset_name: flatpak-compose-${{ matrix.os }}-${{ matrix.arch }}.zip
           asset_content_type: application/zip
